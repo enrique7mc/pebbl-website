@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-gold: #c9a84c;
+  --color-gold-light: #d4b85c;
+  --color-surface: #111111;
+  --color-surface-light: #1a1a1a;
+}
+
+body {
+  background: #0a0a0a;
+  color: #ededed;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
