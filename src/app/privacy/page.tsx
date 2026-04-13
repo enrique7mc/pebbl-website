@@ -106,10 +106,10 @@ export default function Privacy() {
               <p>
                 For questions about this privacy policy, please contact us at{" "}
                 <a
-                  href="mailto:hello@xemc.dev"
+                  href="mailto:support@xemc.dev"
                   className="text-gold hover:text-gold-light transition-colors"
                 >
-                  hello@xemc.dev
+                  support@xemc.dev
                 </a>
                 .
               </p>
