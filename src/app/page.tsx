@@ -91,7 +91,7 @@ export default function Home() {
         <section className="px-6 pb-20">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-white text-center mb-10">
-              Everything you need, nothing you don&apos;t.
+              Simple tools, done right.
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <FeatureCard
