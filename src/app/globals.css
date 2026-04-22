@@ -5,10 +5,41 @@
   --color-gold-light: #d4b85c;
   --color-surface: #111111;
   --color-surface-light: #1a1a1a;
+  --color-surface-card: #141414;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #111111;
+  --color-fg: #ededed;
+  --color-fg-muted: #a1a1aa;
+  --color-fg-dim: #71717a;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.1);
+  --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
 }
 
 body {
   background: #0a0a0a;
   color: #ededed;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(201, 168, 76, 0.18);
+  color: #fff;
+}
+
+@keyframes pebbl-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.pebbl-caret {
+  animation: pebbl-blink 1s step-end infinite;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }

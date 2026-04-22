@@ -1,141 +1,583 @@
 import Image from "next/image";
 import Link from "next/link";
+import PebblEditor, { type EditorLine } from "@/components/PebblEditor";
+import IOSDevice from "@/components/IOSDevice";
 
-function EditorLine({ input, result }: { input: string; result: string }) {
+const ACCENT = "#c9a84c";
+const APP_STORE_URL =
+  "https://apps.apple.com/us/app/pebbl-notepad-calculator/id6762314944";
+
+const SCRIPTS: Record<string, EditorLine[]> = {
+  budget: [
+    { input: "# budget", result: "" },
+    { input: "rent = 1,850", result: "1,850" },
+    { input: "groceries = 420", result: "420" },
+    { input: "utilities = 135", result: "135" },
+    { input: "subscriptions = 58", result: "58" },
+    { input: "sum", result: "2,463" },
+    { input: "", result: "" },
+    { input: "salary = 5,200", result: "5,200" },
+    { input: "salary - 2,463", result: "2,737" },
+  ],
+  cooking: [
+    { input: "# sourdough", result: "" },
+    { input: "flour = 500 g", result: "500 g" },
+    { input: "hydration = 75%", result: "75%" },
+    { input: "water = flour * hydration", result: "375 g" },
+    { input: "salt = 2% of flour", result: "10 g" },
+    { input: "starter = 20% of flour", result: "100 g" },
+    { input: "", result: "" },
+    { input: "475 °F to °C", result: "246 °C" },
+  ],
+  travel: [
+    { input: "# tokyo", result: "" },
+    { input: "flights = 1,240 USD", result: "1,240 USD" },
+    { input: "hotel = 38,500 JPY", result: "38,500 JPY" },
+    { input: "nights = 6", result: "6" },
+    { input: "hotel * nights in USD", result: "$1,488" },
+    { input: "", result: "" },
+    { input: "10 km to miles", result: "6.21 mi" },
+    { input: "30 °C to °F", result: "86 °F" },
+  ],
+  renovation: [
+    { input: "# kitchen", result: "" },
+    { input: "floor = 4.2 m * 3.6 m", result: "15.12 m²" },
+    { input: "floor in sqft", result: "162.75 sqft" },
+    { input: "tile = 60 cm * 60 cm", result: "0.36 m²" },
+    { input: "tiles = floor / tile", result: "42" },
+    { input: "tiles + 10%", result: "46.2" },
+    { input: "", result: "" },
+    { input: "paint = 32 USD", result: "32 USD" },
+    { input: "paint * 3", result: "96 USD" },
+  ],
+};
+
+function Nav() {
   return (
-    <div className="flex justify-between items-baseline py-1.5 border-b border-white/5">
-      <span className="font-mono text-sm text-zinc-300">{input}</span>
-      <span className="font-mono text-sm text-gold">{result}</span>
+    <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-[color:var(--color-border)] bg-[rgba(10,10,10,0.6)] px-6 py-5 backdrop-blur-xl sm:px-8">
+      <div className="flex items-center gap-2.5">
+        <Image
+          src="/icon.png"
+          alt=""
+          width={28}
+          height={28}
+          className="rounded-[7px]"
+          priority
+        />
+        <span className="text-[15px] font-semibold tracking-tight">Pebbl</span>
+      </div>
+      <div className="flex items-center gap-6 text-sm text-zinc-400 sm:gap-7">
+        <a
+          href="#examples"
+          className="hidden sm:inline hover:text-white transition-colors"
+        >
+          Examples
+        </a>
+        <a
+          href="#syntax"
+          className="hidden sm:inline hover:text-white transition-colors"
+        >
+          Syntax
+        </a>
+        <a
+          href={APP_STORE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-full bg-white px-3.5 py-1.5 text-[13px] font-semibold text-black transition-opacity hover:opacity-90"
+        >
+          Download
+        </a>
+      </div>
+    </nav>
+  );
+}
+
+function AppleBadge() {
+  return (
+    <a
+      href={APP_STORE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Download on the App Store"
+      className="inline-flex transition-opacity hover:opacity-85"
+    >
+      <Image
+        src="/app-store-badge.svg"
+        alt="Download on the App Store"
+        width={156}
+        height={52}
+        unoptimized
+        priority
+      />
+    </a>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative overflow-hidden px-6 pt-16 pb-20 sm:px-8 sm:pt-20 sm:pb-24">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at 50% 0%, ${ACCENT}22 0%, transparent 55%)`,
+        }}
+      />
+
+      <div className="relative mx-auto grid max-w-[1180px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div>
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border-strong)] px-3 py-1.5 text-xs text-zinc-400">
+            <span
+              className="inline-block h-1.5 w-1.5 rounded-full"
+              style={{ background: ACCENT }}
+            />
+            <span className="font-mono tracking-wide">v1 · now on iPhone</span>
+          </div>
+
+          <h1
+            className="font-serif text-white"
+            style={{
+              fontSize: "clamp(56px, 7.5vw, 104px)",
+              lineHeight: 1.05,
+              margin: 0,
+              letterSpacing: "-0.025em",
+            }}
+          >
+            Math, the way
+            <br />
+            <em
+              className="font-serif"
+              style={{ color: ACCENT, fontStyle: "italic" }}
+            >
+              you think.
+            </em>
+          </h1>
+
+          <p
+            className="mt-7 max-w-md text-zinc-400"
+            style={{ fontSize: 18, lineHeight: 1.55 }}
+          >
+            A notepad calculator for iPhone. Type expressions in plain English
+            and watch the answer appear beside every line.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center gap-5">
+            <AppleBadge />
+            <span className="font-mono text-[13px] text-zinc-500">
+              Free · no ads · no subscription
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-center lg:justify-end">
+          <div
+            style={{
+              transform: "scale(0.78)",
+              transformOrigin: "top center",
+              marginBottom: -160,
+            }}
+          >
+            <IOSDevice width={402} height={820}>
+              <div
+                style={{
+                  padding: "62px 14px 28px",
+                  height: "100%",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <PebblEditor
+                  script={SCRIPTS.budget}
+                  accent={ACCENT}
+                  surface="rgba(255,255,255,0.02)"
+                  border="rgba(255,255,255,0.08)"
+                  speed={48}
+                />
+              </div>
+            </IOSDevice>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type UseCaseProps = {
+  eyebrow: string;
+  title: React.ReactNode;
+  body: string;
+  scriptKey: keyof typeof SCRIPTS;
+  alignRight?: boolean;
+  startDelay: number;
+};
+
+function UseCase({
+  eyebrow,
+  title,
+  body,
+  scriptKey,
+  alignRight,
+  startDelay,
+}: UseCaseProps) {
+  return (
+    <div className="grid items-center gap-10 border-t border-[color:var(--color-border)] py-12 md:gap-12 md:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div className={alignRight ? "lg:order-2" : "lg:order-1"}>
+        <div
+          className="mb-4 font-mono text-[11px] uppercase tracking-[0.15em]"
+          style={{ color: ACCENT }}
+        >
+          {eyebrow}
+        </div>
+        <h3
+          className="font-serif text-white"
+          style={{
+            fontSize: "clamp(32px, 4.5vw, 52px)",
+            lineHeight: 1.08,
+            margin: 0,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {title}
+        </h3>
+        <p
+          className="mt-5 max-w-[380px] text-zinc-400"
+          style={{ fontSize: 16, lineHeight: 1.6 }}
+        >
+          {body}
+        </p>
+      </div>
+      <div className={alignRight ? "lg:order-1" : "lg:order-2"}>
+        <PebblEditor
+          script={SCRIPTS[scriptKey]}
+          accent={ACCENT}
+          surface="var(--color-surface-card)"
+          border="var(--color-border-strong)"
+          speed={52}
+          startDelay={startDelay}
+        />
+      </div>
     </div>
   );
 }
 
-function FeatureCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function Examples() {
   return (
-    <div className="rounded-xl bg-surface-light p-6">
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-zinc-400 leading-relaxed">{description}</p>
-    </div>
+    <section
+      id="examples"
+      className="mx-auto max-w-[1180px] px-6 pt-24 pb-10 sm:px-8"
+    >
+      <div className="mb-8 max-w-[720px]">
+        <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+          01 — Examples
+        </div>
+        <h2
+          className="font-serif text-white"
+          style={{
+            fontSize: "clamp(40px, 5.5vw, 68px)",
+            lineHeight: 1.06,
+            margin: 0,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Four ways people{" "}
+          <em
+            className="font-serif"
+            style={{ color: ACCENT, fontStyle: "italic" }}
+          >
+            actually use it.
+          </em>
+        </h2>
+      </div>
+
+      <UseCase
+        eyebrow="Monthly budget"
+        title="Every number has a name."
+        body="Assign values to variables, reuse them anywhere, and let Pebbl keep the math in your head out of your head."
+        scriptKey="budget"
+        startDelay={200}
+      />
+      <UseCase
+        eyebrow="Cooking & baking"
+        title={<>Bakers&rsquo; percentages, without the spreadsheet.</>}
+        body="Hydration, ratios, oven temps across units. Change the flour weight and every derived quantity updates with it."
+        scriptKey="cooking"
+        alignRight
+        startDelay={500}
+      />
+      <UseCase
+        eyebrow="Travel"
+        title="Currencies and units, in the language you think in."
+        body={
+          'Live exchange rates cached for offline. Type "10 km to miles" or "30 °C to °F" — no menus, no mode switches.'
+        }
+        scriptKey="travel"
+        startDelay={800}
+      />
+      <UseCase
+        eyebrow="Home renovation"
+        title="Areas, materials, waste factor."
+        body="Multiply dimensions, convert between metric and imperial, add a 10% overage. Keep the plan in one document."
+        scriptKey="renovation"
+        alignRight
+        startDelay={1100}
+      />
+    </section>
+  );
+}
+
+function Syntax() {
+  const sections: { title: string; rows: [string, string][] }[] = [
+    {
+      title: "Arithmetic",
+      rows: [
+        ["1,200 + 450", "1,650"],
+        ["150 * 1.08", "162"],
+        ["2^10", "1,024"],
+        ["sqrt(144)", "12"],
+      ],
+    },
+    {
+      title: "Variables",
+      rows: [
+        ["salary = 5,200", "5,200"],
+        ["rent = 1,850", "1,850"],
+        ["salary - rent", "3,350"],
+        ["sum", "— all above"],
+      ],
+    },
+    {
+      title: "Percentages",
+      rows: [
+        ["18% of 84", "15.12"],
+        ["120 + 15%", "138"],
+        ["25% off 320", "240"],
+        ["40 as % of 200", "20%"],
+      ],
+    },
+    {
+      title: "Units",
+      rows: [
+        ["5 km in miles", "3.11 mi"],
+        ["180 cm to ft", "5.91 ft"],
+        ["2 hours in minutes", "120 min"],
+        ["500 g to oz", "17.64 oz"],
+      ],
+    },
+    {
+      title: "Currency",
+      rows: [
+        ["100 USD in EUR", "92.18 EUR"],
+        ["2,500 JPY in USD", "$16.08"],
+        ["50 GBP + 30 EUR", "91.47 USD"],
+        ["500 EUR to USD", "$542.50"],
+      ],
+    },
+    {
+      title: "Scientific",
+      rows: [
+        ["sin(pi / 2)", "1"],
+        ["log(1000)", "3"],
+        ["fact(5)", "120"],
+        ["0xff in binary", "1111 1111"],
+      ],
+    },
+  ];
+
+  return (
+    <section
+      id="syntax"
+      className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-6 py-24 sm:px-8 sm:py-28"
+    >
+      <div className="mx-auto max-w-[1180px]">
+        <div className="mb-12 max-w-[720px]">
+          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            02 — Cheat sheet
+          </div>
+          <h2
+            className="font-serif text-white"
+            style={{
+              fontSize: "clamp(40px, 5.5vw, 68px)",
+              lineHeight: 1.06,
+              margin: 0,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            The whole{" "}
+            <em
+              className="font-serif"
+              style={{ color: ACCENT, fontStyle: "italic" }}
+            >
+              syntax,
+            </em>{" "}
+            in one page.
+          </h2>
+          <p
+            className="mt-5 max-w-[520px] text-zinc-400"
+            style={{ fontSize: 16, lineHeight: 1.6 }}
+          >
+            There are no menus, no modes. You type what you mean. If it reads
+            like English, it probably works.
+          </p>
+        </div>
+
+        <div
+          className="grid gap-px border border-[color:var(--color-border)] bg-[color:var(--color-border)]"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          }}
+        >
+          {sections.map((s) => (
+            <div key={s.title} className="bg-[color:var(--color-surface)] p-7">
+              <div className="mb-4 flex items-baseline gap-2.5 border-b border-[color:var(--color-border)] pb-3.5">
+                <span className="font-serif text-[22px] text-white">
+                  {s.title}
+                </span>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                {s.rows.map(([l, r], i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between gap-4 py-1.5 font-mono text-[13px]"
+                  >
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-zinc-300">
+                      {l}
+                    </span>
+                    <span
+                      className="whitespace-nowrap"
+                      style={{ color: ACCENT }}
+                    >
+                      {r}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Pricing() {
+  return (
+    <section className="mx-auto max-w-[820px] px-6 py-24 text-center sm:px-8 sm:py-28">
+      <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+        03 — Pricing
+      </div>
+
+      <h2
+        className="font-serif text-white"
+        style={{
+          fontSize: "clamp(52px, 8vw, 112px)",
+          lineHeight: 1.02,
+          margin: 0,
+          letterSpacing: "-0.025em",
+        }}
+      >
+        Zero dollars.{" "}
+        <em
+          className="font-serif"
+          style={{ color: ACCENT, fontStyle: "italic" }}
+        >
+          Always.
+        </em>
+      </h2>
+
+      <p
+        className="mx-auto mt-6 max-w-[520px] text-zinc-400"
+        style={{ fontSize: 18, lineHeight: 1.55 }}
+      >
+        No account. No analytics. No tracking. No ads. No subscription.
+        Documents stay on your device.
+      </p>
+
+      <div className="mt-10 flex flex-wrap justify-center gap-5">
+        <AppleBadge />
+      </div>
+
+      <div
+        className="mx-auto mt-16 grid max-w-[680px] gap-px border border-[color:var(--color-border)] bg-[color:var(--color-border)]"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+        }}
+      >
+        {[
+          ["$0", "price, forever"],
+          ["0", "accounts required"],
+          ["0", "trackers"],
+          ["100%", "on-device"],
+        ].map(([big, small]) => (
+          <div key={small} className="bg-[color:var(--color-ink)] px-4 py-6">
+            <div
+              className="font-serif"
+              style={{ fontSize: 40, color: ACCENT, lineHeight: 1 }}
+            >
+              {big}
+            </div>
+            <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.1em] text-zinc-500">
+              {small}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-[color:var(--color-border)] px-6 py-8 sm:px-8">
+      <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-5 text-[13px] text-zinc-500">
+        <div className="flex items-center gap-2.5">
+          <Image
+            src="/icon.png"
+            alt=""
+            width={20}
+            height={20}
+            className="rounded-[5px]"
+          />
+          <span>&copy; {new Date().getFullYear()} Pebbl</span>
+        </div>
+        <div className="flex gap-6">
+          <Link
+            href="/privacy"
+            className="hover:text-zinc-300 transition-colors"
+          >
+            Privacy
+          </Link>
+          <a
+            href="mailto:support@xemc.dev"
+            className="hover:text-zinc-300 transition-colors"
+          >
+            Contact
+          </a>
+          <a
+            href={APP_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-300 transition-colors"
+          >
+            App Store
+          </a>
+        </div>
+      </div>
+    </footer>
   );
 }
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex min-h-full flex-col">
+      <Nav />
       <main className="flex-1">
-        {/* Hero */}
-        <section className="flex flex-col items-center justify-center px-6 pt-24 pb-16 text-center">
-          <Image
-            src="/icon.png"
-            alt="Pebbl app icon"
-            width={96}
-            height={96}
-            className="rounded-2xl mb-8"
-            priority
-          />
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white max-w-lg">
-            Math, the way
-            <br />
-            <span className="text-gold">you think.</span>
-          </h1>
-          <p className="mt-6 text-lg text-zinc-400 max-w-md leading-relaxed">
-            A notepad calculator for iPhone. Type expressions in plain
-            English and see live results beside every line.
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">
-            Free. No ads. No subscription.
-          </p>
-
-          <a
-            href="https://apps.apple.com/us/app/pebbl-notepad-calculator/id6762314944"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-white text-black px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-5 h-5"
-              fill="currentColor"
-            >
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-            </svg>
-            Download on the App Store
-          </a>
-        </section>
-
-        {/* Editor Preview */}
-        <section className="px-6 pb-20">
-          <div className="max-w-md mx-auto rounded-2xl bg-surface border border-white/5 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-gold" />
-              <span className="text-xs text-zinc-500 font-mono">
-                budget.pebbl
-              </span>
-            </div>
-            <EditorLine input="rent = 1200" result="1,200" />
-            <EditorLine input="groceries = 400" result="400" />
-            <EditorLine input="utilities = 150" result="150" />
-            <EditorLine input="rent + groceries + utilities" result="1,750" />
-            <EditorLine input="" result="" />
-            <EditorLine input="salary = 5000 USD" result="5,000 USD" />
-            <EditorLine input="salary in EUR" result="4,612.50 EUR" />
-            <EditorLine input="32°F to °C" result="0°C" />
-          </div>
-        </section>
-
-        {/* Features */}
-        <section className="px-6 pb-20">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-10">
-              Simple tools, done right.
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FeatureCard
-                title="Live Currency"
-                description="Type &quot;100 USD in EUR&quot; and see the result with real exchange rates. Works offline with cached rates."
-              />
-              <FeatureCard
-                title="Unit Conversion"
-                description="Length, weight, temperature, time, digital storage, and more. Just type naturally — &quot;5 km in miles&quot;."
-              />
-              <FeatureCard
-                title="Variables & Sums"
-                description="Assign values to names and reuse them. Use sum and average to aggregate sections."
-              />
-              <FeatureCard
-                title="Scientific Functions"
-                description="sqrt, sin, cos, log, factorial, pi, e. Hex, binary, and octal conversions built in."
-              />
-              <FeatureCard
-                title="Multiple Documents"
-                description="Organize calculations into named documents. Auto-saved locally, always there when you come back."
-              />
-              <FeatureCard
-                title="Private by Design"
-                description="No account. No analytics. No tracking. Documents stay on your device. Free forever."
-              />
-            </div>
-          </div>
-        </section>
+        <Hero />
+        <Examples />
+        <Syntax />
+        <Pricing />
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-8 px-6">
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
-          <span>&copy; {new Date().getFullYear()} Pebbl</span>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-zinc-300 transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
