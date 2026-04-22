@@ -171,10 +171,10 @@ function Hero() {
 
         <div className="flex justify-center lg:justify-end">
           <div
+            className="lg:-mb-40"
             style={{
               transform: "scale(0.78)",
               transformOrigin: "top center",
-              marginBottom: -160,
             }}
           >
             <IOSDevice width={402} height={820}>

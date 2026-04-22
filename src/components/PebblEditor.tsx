@@ -1,6 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+function subscribeReducedMotion(onChange: () => void) {
+  if (typeof window === "undefined" || !window.matchMedia) return () => {};
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function getReducedMotion() {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServer() {
+  return false;
+}
 
 export type EditorLine = {
   input: string;
@@ -120,6 +136,11 @@ export default function PebblEditor({
   rowHeight = 34,
   radius = 16,
 }: PebblEditorProps) {
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotion,
+    getReducedMotionServer,
+  );
   const [state, setState] = useState<PhaseState>({
     lineIdx: 0,
     charIdx: 0,
@@ -127,14 +148,15 @@ export default function PebblEditor({
   });
 
   useEffect(() => {
-    setState({ lineIdx: 0, charIdx: 0, phase: "waiting" });
+    if (reducedMotion) return;
     const t = setTimeout(() => {
       setState((s) => ({ ...s, phase: "typing" }));
     }, startDelay);
     return () => clearTimeout(t);
-  }, [script, startDelay]);
+  }, [script, startDelay, reducedMotion]);
 
   useEffect(() => {
+    if (reducedMotion) return;
     if (state.phase === "typing") {
       const line = script[state.lineIdx];
       if (!line) return;
@@ -166,7 +188,7 @@ export default function PebblEditor({
       }, pauseAfter);
       return () => clearTimeout(t);
     }
-  }, [state, script, loop, speed, pauseAfter]);
+  }, [state, script, loop, speed, pauseAfter, reducedMotion]);
 
   return (
     <div
@@ -245,8 +267,10 @@ export default function PebblEditor({
           }}
         >
           {script.map((line, i) => {
-            const isCurrent = i === state.lineIdx && state.phase === "typing";
-            const isPast = i < state.lineIdx || state.phase === "done";
+            const isCurrent =
+              !reducedMotion && i === state.lineIdx && state.phase === "typing";
+            const isPast =
+              reducedMotion || i < state.lineIdx || state.phase === "done";
             const shown = isPast
               ? line.input || ""
               : isCurrent
